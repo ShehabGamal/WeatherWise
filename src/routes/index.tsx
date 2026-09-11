@@ -23,13 +23,13 @@ import { buildRecommendations, type Recommendation } from "@/lib/recommendations
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "SkyGuide — Weather with Local Travel Tips" },
+      { title: "WeatherWise — Weather with Local Travel Tips" },
       {
         name: "description",
         content:
           "Enter any city and country to see live weather plus tailored clothing, transport and destination recommendations.",
       },
-      { property: "og:title", content: "SkyGuide — Weather with Local Travel Tips" },
+      { property: "og:title", content: "WeatherWise — Weather with Local Travel Tips" },
       {
         property: "og:description",
         content:
@@ -116,7 +116,7 @@ function Index() {
       <div className="mx-auto w-full max-w-5xl">
         <header className="text-center">
           <p className="inline-flex items-center gap-2 rounded-full border border-border px-3 py-1 text-xs uppercase tracking-[0.2em] text-muted-foreground">
-            <CloudSun className="h-4 w-4 text-primary" /> SkyGuide
+            <CloudSun className="h-4 w-4 text-primary" /> WeatherWise
           </p>
           <h1 className="mt-5 text-3xl font-bold leading-tight sm:text-5xl">
             Weather, and what to do about it

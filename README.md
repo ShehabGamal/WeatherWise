@@ -81,20 +81,6 @@ Open <http://localhost:8080> and search for your favorite city. 🌍
 
 The app deploys as an edge-ready full-stack web app (e.g. via Lovable's one-click publish). Because it's a responsive web app, it runs everywhere — Android, iOS and desktop — directly from the browser, and can be installed to the home screen like a native app.
 
----
-
-## 💼 CV / Portfolio Section
-
-> **WeatherWise — Smart Weather & Travel Companion** *(Full-Stack Web App)*
-> [Live Demo](https://id-preview--cf8edab4-83ef-4b5b-ac27-916208dbd2b0.lovable.app) · React 19 · TypeScript · TanStack Start · Tailwind CSS
->
-> - Designed and shipped a full-stack weather application that combines live OpenWeatherMap data with a **rule-based recommendation engine** generating contextual clothing, transport and sightseeing suggestions for any city worldwide.
-> - Architected a **secure server-side API layer** (typed RPC server functions) keeping third-party credentials out of the client bundle, with input validation and normalized data models.
-> - Built a **fully responsive, mobile-first UI** with Tailwind CSS, delivering a native-app-like experience across Android, iOS and desktop from a single web codebase.
-> - Developed end-to-end in collaboration with **Lovable (AI-assisted development)**, demonstrating modern AI-augmented engineering workflows — from prompt to production deployment.
-
----
-
 ## 🙏 Credits
 
 Weather data by [OpenWeatherMap](https://openweathermap.org). This project was brought to life with **Mr Lovable** — AI pair-programmer extraordinaire — who wrote the code, wired the API, and made it live. <#

@@ -105,13 +105,64 @@ function RecoCard({
 }
 
 function Index() {
-  const [city, setCity] = useState("");
-  const [country, setCountry] = useState("");
+  const [query, setQuery] = useState("");
+  const [suggestions, setSuggestions] = useState<CitySuggestion[]>([]);
+  const [open, setOpen] = useState(false);
+  const [highlight, setHighlight] = useState(-1);
+  const [searching, setSearching] = useState(false);
+  const boxRef = useRef<HTMLDivElement>(null);
   const fetchWeather = useServerFn(getWeather);
+  const fetchCities = useServerFn(searchCities);
 
   const mutation = useMutation<WeatherResult, Error, { city: string; country: string }>({
     mutationFn: (vars) => fetchWeather({ data: vars }),
   });
+
+  useEffect(() => {
+    const q = query.trim();
+    if (q.length < 2) {
+      setSuggestions([]);
+      setOpen(false);
+      return;
+    }
+    setSearching(true);
+    const t = setTimeout(async () => {
+      try {
+        const results = await fetchCities({ data: q });
+        setSuggestions(results);
+        setOpen(results.length > 0);
+        setHighlight(-1);
+      } catch {
+        setSuggestions([]);
+        setOpen(false);
+      } finally {
+        setSearching(false);
+      }
+    }, 250);
+    return () => clearTimeout(t);
+  }, [query, fetchCities]);
+
+  useEffect(() => {
+    const onClick = (e: MouseEvent) => {
+      if (boxRef.current && !boxRef.current.contains(e.target as Node)) setOpen(false);
+    };
+    document.addEventListener("mousedown", onClick);
+    return () => document.removeEventListener("mousedown", onClick);
+  }, []);
+
+  const pick = (s: CitySuggestion) => {
+    setQuery(s.state ? `${s.name}, ${s.state}, ${s.country}` : `${s.name}, ${s.country}`);
+    setOpen(false);
+    mutation.mutate({ city: s.name, country: s.country });
+  };
+
+  const submit = () => {
+    const q = query.trim();
+    if (!q) return;
+    const [city, ...rest] = q.split(",").map((p) => p.trim());
+    setOpen(false);
+    mutation.mutate({ city, country: rest.join(", ") });
+  };
 
   const weather = mutation.data;
   const reco = weather ? buildRecommendations(weather) : null;

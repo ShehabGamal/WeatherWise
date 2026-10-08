@@ -184,27 +184,70 @@ function Index() {
         </header>
 
         <form
-          className="mx-auto mt-8 grid w-full max-w-2xl gap-3 sm:grid-cols-[1fr_1fr_auto]"
+          className="mx-auto mt-8 flex w-full max-w-2xl gap-3"
           onSubmit={(e) => {
             e.preventDefault();
-            if (!city.trim()) return;
-            mutation.mutate({ city: city.trim(), country: country.trim() });
+            if (highlight >= 0 && suggestions[highlight]) {
+              pick(suggestions[highlight]);
+            } else {
+              submit();
+            }
           }}
         >
-          <input
-            value={city}
-            onChange={(e) => setCity(e.target.value)}
-            placeholder="City (e.g. Cairo)"
-            aria-label="City"
-            className="glass-panel w-full rounded-xl px-4 py-3 text-sm outline-none placeholder:text-muted-foreground focus:ring-2 focus:ring-ring"
-          />
-          <input
-            value={country}
-            onChange={(e) => setCountry(e.target.value)}
-            placeholder="Country (optional, e.g. EG)"
-            aria-label="Country"
-            className="glass-panel w-full rounded-xl px-4 py-3 text-sm outline-none placeholder:text-muted-foreground focus:ring-2 focus:ring-ring"
-          />
+          <div ref={boxRef} className="relative min-w-0 flex-1">
+            <input
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              onFocus={() => suggestions.length > 0 && setOpen(true)}
+              onKeyDown={(e) => {
+                if (!open) return;
+                if (e.key === "ArrowDown") {
+                  e.preventDefault();
+                  setHighlight((h) => Math.min(h + 1, suggestions.length - 1));
+                } else if (e.key === "ArrowUp") {
+                  e.preventDefault();
+                  setHighlight((h) => Math.max(h - 1, -1));
+                } else if (e.key === "Escape") {
+                  setOpen(false);
+                }
+              }}
+              placeholder="Search a city… (e.g. Cairo)"
+              aria-label="City"
+              role="combobox"
+              aria-expanded={open}
+              aria-autocomplete="list"
+              autoComplete="off"
+              className="glass-panel w-full rounded-xl px-4 py-3 text-sm outline-none placeholder:text-muted-foreground focus:ring-2 focus:ring-ring"
+            />
+            {searching && (
+              <Loader2 className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 animate-spin text-muted-foreground" />
+            )}
+            {open && (
+              <ul
+                role="listbox"
+                className="glass-panel absolute left-0 right-0 top-full z-20 mt-2 max-h-72 overflow-auto rounded-xl p-1 shadow-lg"
+              >
+                {suggestions.map((s, i) => (
+                  <li key={`${s.name}-${s.country}-${s.state ?? ""}`} role="option" aria-selected={i === highlight}>
+                    <button
+                      type="button"
+                      onClick={() => pick(s)}
+                      onMouseEnter={() => setHighlight(i)}
+                      className={`flex w-full items-center gap-2 rounded-lg px-3 py-2.5 text-left text-sm transition ${
+                        i === highlight ? "bg-primary/15" : ""
+                      }`}
+                    >
+                      <MapPin className="h-4 w-4 shrink-0 text-primary" />
+                      <span className="min-w-0 truncate font-medium">{s.name}</span>
+                      <span className="min-w-0 truncate text-muted-foreground">
+                        {s.state ? `${s.state}, ` : ""}{s.country}
+                      </span>
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
           <button
             type="submit"
             disabled={mutation.isPending}

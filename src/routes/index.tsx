@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useMutation } from "@tanstack/react-query";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   Search,
   Loader2,
@@ -17,7 +17,12 @@ import {
   CloudSun,
 } from "lucide-react";
 
-import { getWeather, type WeatherResult } from "@/lib/weather.functions";
+import {
+  getWeather,
+  searchCities,
+  type CitySuggestion,
+  type WeatherResult,
+} from "@/lib/weather.functions";
 import { buildRecommendations, type Recommendation } from "@/lib/recommendations";
 
 export const Route = createFileRoute("/")({

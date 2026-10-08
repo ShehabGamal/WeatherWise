@@ -111,6 +111,7 @@ function Index() {
   const [highlight, setHighlight] = useState(-1);
   const [searching, setSearching] = useState(false);
   const boxRef = useRef<HTMLDivElement>(null);
+  const suppressRef = useRef(false);
   const fetchWeather = useServerFn(getWeather);
   const fetchCities = useServerFn(searchCities);
 
@@ -129,10 +130,12 @@ function Index() {
     const t = setTimeout(async () => {
       try {
         const results = await fetchCities({ data: q });
+        if (suppressRef.current) return;
         setSuggestions(results);
         setOpen(results.length > 0);
         setHighlight(-1);
       } catch {
+        if (suppressRef.current) return;
         setSuggestions([]);
         setOpen(false);
       } finally {
@@ -151,6 +154,7 @@ function Index() {
   }, []);
 
   const pick = (s: CitySuggestion) => {
+    suppressRef.current = true;
     setQuery(s.state ? `${s.name}, ${s.state}, ${s.country}` : `${s.name}, ${s.country}`);
     setOpen(false);
     mutation.mutate({ city: s.name, country: s.country });
@@ -160,6 +164,7 @@ function Index() {
     const q = query.trim();
     if (!q) return;
     const [city, ...rest] = q.split(",").map((p) => p.trim());
+    suppressRef.current = true;
     setOpen(false);
     mutation.mutate({ city: city ?? q, country: rest.join(", ") });
   };
@@ -197,8 +202,11 @@ function Index() {
           <div ref={boxRef} className="relative min-w-0 flex-1">
             <input
               value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              onFocus={() => suggestions.length > 0 && setOpen(true)}
+              onChange={(e) => {
+                suppressRef.current = false;
+                setQuery(e.target.value);
+              }}
+              onFocus={() => !suppressRef.current && suggestions.length > 0 && setOpen(true)}
               onKeyDown={(e) => {
                 if (!open) return;
                 if (e.key === "ArrowDown") {

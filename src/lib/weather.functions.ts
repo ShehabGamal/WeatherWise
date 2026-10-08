@@ -28,6 +28,45 @@ export type WeatherResult = {
   lon: number;
 };
 
+export type CitySuggestion = {
+  name: string;
+  country: string;
+  state?: string;
+  lat: number;
+  lon: number;
+};
+
+export const searchCities = createServerFn({ method: "GET" })
+  .inputValidator((data: unknown) => z.string().trim().min(2).max(80).parse(data))
+  .handler(async ({ data }): Promise<CitySuggestion[]> => {
+    const apiKey = process.env["OPENWEATHER_API_KEY"];
+    if (!apiKey) throw new Error("Weather service is not configured.");
+
+    const url = `https://api.openweathermap.org/geo/1.0/direct?q=${encodeURIComponent(
+      data,
+    )}&limit=6&APPID=${apiKey}`;
+
+    const res = await fetch(url);
+    if (!res.ok) return [];
+
+    const json = (await res.json()) as any[];
+    const seen = new Set<string>();
+    const out: CitySuggestion[] = [];
+    for (const item of json) {
+      const key = `${item.name}|${item.country}|${item.state ?? ""}`;
+      if (seen.has(key)) continue;
+      seen.add(key);
+      out.push({
+        name: item.name,
+        country: item.country,
+        state: item.state,
+        lat: item.lat,
+        lon: item.lon,
+      });
+    }
+    return out;
+  });
+
 export const getWeather = createServerFn({ method: "GET" })
   .inputValidator((data: unknown) => inputSchema.parse(data))
   .handler(async ({ data }): Promise<WeatherResult> => {

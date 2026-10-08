@@ -161,7 +161,7 @@ function Index() {
     if (!q) return;
     const [city, ...rest] = q.split(",").map((p) => p.trim());
     setOpen(false);
-    mutation.mutate({ city, country: rest.join(", ") });
+    mutation.mutate({ city: city ?? q, country: rest.join(", ") });
   };
 
   const weather = mutation.data;
